@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J equilibrate
-#SBATCH --array=0-377
+#SBATCH --array=377-377
 #SBATCH -p free-gpu
 #SBATCH -t 08:00:00
 #SBATCH --nodes=1
