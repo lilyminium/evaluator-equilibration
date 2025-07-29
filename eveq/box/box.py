@@ -96,10 +96,11 @@ class PropertyBox(TypedBaseModel):
             molecules.append(mol)
             counts.append(n_molecules[component.identifier])
 
+        density = 0.95 / (1.1 ** 3)
         top = pack_box(
             molecules,
             counts,
-            target_density=0.95 * unit.grams / unit.milliliters,
+            mass_density=density * unit.grams / unit.milliliters,
             box_shape=UNIT_CUBE,
             retain_working_files=False,
         )

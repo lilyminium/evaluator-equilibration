@@ -54,6 +54,11 @@ class EquilibrationSystem:
         # easy defaults
         self.temperature = box.thermodynamic_state.temperature.to_openmm()
         self.timestep = 2.0 * unit.femtosecond
+        self.csv_columns = [
+            "Step",
+            "Potential Energy (kJ/mole)", "Kinetic Energy (kJ/mole)", "Total Energy (kJ/mole)",
+            "Temperature (K)", "Box Volume (nm^3)", "Density (g/mL)", "Speed (ns/day)"
+        ]
 
     def _load_current_state(self):
         if self.interchange_file.exists():
@@ -84,7 +89,7 @@ class EquilibrationSystem:
         if self.interchange is None:
             raise ValueError("Interchange not initialized. Call pack_initial_box first.")
         with open(self.interchange_file, "w") as f:
-            f.write(self.interchange.model_dump_json())
+            f.write(self.interchange.json())
 
 
     def minimize(self):
@@ -132,7 +137,7 @@ class EquilibrationSystem:
             shutil.copy(self.statistics_file, self.tmp_statistics_file)
 
         statistics_reporter = openmm.app.StateDataReporter(
-            self.tmp_statistics_file,
+            str(self.tmp_statistics_file.resolve()),
             1000, # every 2 ps
             step=True,
             potentialEnergy=True,
@@ -205,7 +210,7 @@ class EquilibrationSystem:
         
 
     def evaluate_equilibration(self) -> bool:
-        df = pd.read_csv(self.statistics_file, header=0).rename(columns={'#"Step"': 'Step'})
+        df = pd.read_csv(self.statistics_file, names=self.csv_columns)
 
         # detect equilibration based on Potential Energy and Density
 
@@ -221,6 +226,8 @@ class EquilibrationSystem:
         # employ all methods available in RED... 
         # Chodera's is likely the most influential as it selects the latest points
         # but this is more automated
+
+        print(data)
 
         equilibration_indices = []
         statistical_inefficiencies = []
@@ -294,7 +301,7 @@ class EquilibrationSystem:
 
 
     def to_stored_equilibration_data(self):
-        df = pd.read_csv(self.statistics_file, header=0).rename(columns={'#"Step"': 'Step'})
+        df = pd.read_csv(self.statistics_file, names=self.csv_columns)
         equilibration_attrs = [
             self._get_equilibration_attributes(df['Potential Energy (kJ/mole)'].values),
             self._get_equilibration_attributes(df['Density (g/mL)'].values)
