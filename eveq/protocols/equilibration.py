@@ -235,8 +235,6 @@ class EquilibrationSystem:
         # Chodera's is likely the most influential as it selects the latest points
         # but this is more automated
 
-        print(data)
-
         equilibration_indices = []
         statistical_inefficiencies = []
         effective_sample_sizes = []
