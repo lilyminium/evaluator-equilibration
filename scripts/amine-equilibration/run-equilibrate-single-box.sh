@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH -J equilibrate
-#SBATCH --array=377-377
+#SBATCH --array=165-377
 #SBATCH -p free-gpu
-#SBATCH -t 08:00:00
+#SBATCH -t 05:00:00
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --account dmobley_lab_gpu

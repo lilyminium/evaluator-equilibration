@@ -214,6 +214,7 @@ class EquilibrationSystem:
         obj = self.to_stored_equilibration_data()
         with open(self.output_file, "w") as f:
             json.dump(obj, f, cls=TypedJSONEncoder)
+        self.save_interchange()
 
         
 
@@ -275,7 +276,7 @@ class EquilibrationSystem:
 
 
 
-    def _evaluate_timeseries_equilibration(self, data, property_name, n_required_samples: int = 50) -> bool:
+    def _evaluate_timeseries_equilibration(self, data, property_name, n_required_samples: int = 100) -> bool:
         """
         Evaluate the equilibration of a timeseries data
 
@@ -284,8 +285,8 @@ class EquilibrationSystem:
         data : np.ndarray
             The timeseries data to evaluate.
         n_required_samples : int, optional
-            The number of required samples to consider the system equilibrated, by default 50.
-            50 samples is at minimum 100 ps data
+            The number of required samples to consider the system equilibrated, by default 100.
+            100 samples is at minimum 200 ps data
 
         Returns
         -------

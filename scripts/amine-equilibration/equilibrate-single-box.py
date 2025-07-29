@@ -2,11 +2,19 @@ import pathlib
 
 import click
 import tqdm
+import logging
 
 
 from openff.evaluator.utils.serialization import TypedBaseModel
 from eveq.box.box import PropertyBox
 from eveq.protocols.equilibration import EquilibrationSystem
+
+import logging
+
+# log all info level messages
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
 
 @click.command()
 @click.option(
@@ -78,6 +86,7 @@ def main(
     )
 
     system.run_all()
+    print("Done!")
 
 
 if __name__ == "__main__":
