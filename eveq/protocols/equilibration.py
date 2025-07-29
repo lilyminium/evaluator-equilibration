@@ -1,4 +1,5 @@
 import logging
+import math
 import pathlib
 import shutil
 import json
@@ -26,6 +27,7 @@ class EquilibrationSystem:
         box: PropertyBox,
         forcefield: ForceField,
         working_directory: str,
+        n_required_samples: int = 100,
         max_iterations: int=2000
     ):
         self.box = box
@@ -35,6 +37,8 @@ class EquilibrationSystem:
         self.forcefield = forcefield
         # 2000 * 200 ps = 400 ns
         self.max_iterations = max_iterations
+        # 50 --> 100 ps
+        self.n_required_samples = n_required_samples
         
         working_directory = pathlib.Path(working_directory) / box._get_storage_key()
         working_directory.mkdir(parents=True, exist_ok=True)
@@ -226,11 +230,10 @@ class EquilibrationSystem:
         potential_energy = df['Potential Energy (kJ/mole)'].values
         density = df['Density (g/mL)'].values
 
-        return (
-            self._evaluate_timeseries_equilibration(potential_energy, "potential_energy") and
-            self._evaluate_timeseries_equilibration(density, "density")
-        )
-    
+        pe = self._evaluate_timeseries_equilibration(potential_energy, "potential_energy")
+        dens = self._evaluate_timeseries_equilibration(density, "density")
+        return (pe and dens)
+ 
     def _get_equilibration_attributes(self, data, property_name):
         # employ all methods available in RED... 
         # Chodera's is likely the most influential as it selects the latest points
@@ -276,7 +279,7 @@ class EquilibrationSystem:
 
 
 
-    def _evaluate_timeseries_equilibration(self, data, property_name, n_required_samples: int = 100) -> bool:
+    def _evaluate_timeseries_equilibration(self, data, property_name) -> bool:
         """
         Evaluate the equilibration of a timeseries data
 
@@ -285,8 +288,8 @@ class EquilibrationSystem:
         data : np.ndarray
             The timeseries data to evaluate.
         n_required_samples : int, optional
-            The number of required samples to consider the system equilibrated, by default 100.
-            100 samples is at minimum 200 ps data
+            The number of required samples to consider the system equilibrated, by default 50.
+            50 samples is at minimum 100 ps data
 
         Returns
         -------
@@ -295,9 +298,14 @@ class EquilibrationSystem:
         """
 
         max_idx, max_inefficiency, min_ess = self._get_equilibration_attributes(data, property_name)
-        logger.info(f"Minimum ESS: {min_ess}; Maximum Index: {max_idx}; Maximum Statistical Inefficiency: {max_inefficiency}")
 
-        if min_ess < n_required_samples:
+        n_samples = len(data)
+        n_evaluator_samples = (n_samples - max_idx) / (math.ceil(max_inefficiency))
+
+        logger.info(f"{property_name} | Minimum ESS: {min_ess}; Maximum Index: {max_idx}; Maximum Statistical Inefficiency: {max_inefficiency}")
+        logger.info(f"{property_name} n_samples: {n_samples}; n_evaluator_samples: {n_evaluator_samples}; n_required_samples: {self.n_required_samples}")
+
+        if n_evaluator_samples < self.n_required_samples:
             return False
         return True
     
