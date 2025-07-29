@@ -52,6 +52,7 @@ class EquilibrationSystem:
         self._load_current_state()
 
         # easy defaults
+        self.pressure = box.thermodynamic_state.pressure.to_openmm()
         self.temperature = box.thermodynamic_state.temperature.to_openmm()
         self.timestep = 2.0 * unit.femtosecond
         self.csv_columns = [
@@ -120,10 +121,17 @@ class EquilibrationSystem:
         platform = get_fastest_platform()
         logger.info(f"Using platform: {platform.getName()}")
 
+        barostat = openmm.MonteCarloBarostat(
+            self.pressure,
+            self.temperature,
+            25,
+        )
+
         simulation = self.interchange.to_openmm_simulation(
             integrator=self._create_integrator(),
             platform=platform,
-            combine_nonbonded_forces=False,
+            combine_nonbonded_forces=True,
+            additional_forces=[barostat],
         )
 
         # load any existing checkpoint
