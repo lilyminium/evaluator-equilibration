@@ -86,7 +86,7 @@ class PropertyBox(TypedBaseModel):
     def to_topology(self) -> Topology:
         """ Convert the PropertyBox to an OpenFF Topology."""
         n_molecules = self.substance.get_molecules_per_component(
-            self.max_molecules
+            self.n_molecules
         )
         molecules = []
         counts = []

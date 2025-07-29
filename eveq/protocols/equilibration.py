@@ -310,7 +310,7 @@ class EquilibrationSystem:
             coordinate_file_name=str(self.equilibrated_file.resolve()),
             statistical_inefficiency=statistical_inefficiency,
             number_of_molecules=self.interchange.topology.n_molecules,
-            max_number_of_molecules=self.box.max_molecules,
+            max_number_of_molecules=self.box.n_molecules,
             calculation_layer="EquilibrationLayer"
         )
         return obj
