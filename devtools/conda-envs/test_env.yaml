@@ -1,0 +1,32 @@
+name: evaluator-equilibration-test
+channels:
+  - openeye
+  - conda-forge
+dependencies:
+    # Base depends
+  - python
+  - pip
+
+  # UI
+  - click
+  - click-option-group
+  - tqdm
+
+  # chemistry
+  - openff-evaluator-base
+  - openeye-toolkits
+  - openff-toolkit-base >=0.11.1
+  - openff-units
+  - pydantic <3
+  - rdkit !=2024.03.6
+  - scipy
+  - ambertools
+
+  # database
+  # - pyarrow
+
+  # Testing
+  - pytest
+  - pytest-cov
+  - pytest-xdist
+  - codecov
