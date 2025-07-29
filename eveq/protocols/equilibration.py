@@ -226,11 +226,11 @@ class EquilibrationSystem:
         density = df['Density (g/mL)'].values
 
         return (
-            self._evaluate_timeseries_equilibration(potential_energy) and
-            self._evaluate_timeseries_equilibration(density)
+            self._evaluate_timeseries_equilibration(potential_energy, "potential_energy") and
+            self._evaluate_timeseries_equilibration(density, "density")
         )
     
-    def _get_equilibration_attributes(self, data):
+    def _get_equilibration_attributes(self, data, property_name):
         # employ all methods available in RED... 
         # Chodera's is likely the most influential as it selects the latest points
         # but this is more automated
@@ -242,7 +242,7 @@ class EquilibrationSystem:
         # window
         idx, g, ess = red.detect_equilibration_window(
             data, method="min_sse", plot=True,
-            plot_name = self.working_directory / "equilibration_window.png"
+            plot_name = self.working_directory / f"equilibration_window_{property_name}.png"
         )
         equilibration_indices.append(idx)
         statistical_inefficiencies.append(g)
@@ -251,7 +251,7 @@ class EquilibrationSystem:
         # geyer
         idx, g, ess = red.detect_equilibration_init_seq(
             data, method="min_sse", plot=True,
-            plot_name = self.working_directory / "equilibration_geyer.png",
+            plot_name = self.working_directory / f"equilibration_geyer_{property_name}.png",
         )
         equilibration_indices.append(idx)
         statistical_inefficiencies.append(g)
@@ -261,7 +261,7 @@ class EquilibrationSystem:
         idx, g, ess = red.detect_equilibration_init_seq(
               data, method="max_ess", sequence_estimator="positive",
               plot=True,
-              plot_name = self.working_directory / "equilibration_chodera.png",
+              plot_name = self.working_directory / f"equilibration_chodera_{property_name}.png",
         )
         equilibration_indices.append(idx)
         statistical_inefficiencies.append(g)
@@ -275,7 +275,7 @@ class EquilibrationSystem:
 
 
 
-    def _evaluate_timeseries_equilibration(self, data, n_required_samples: int = 50) -> bool:
+    def _evaluate_timeseries_equilibration(self, data, property_name, n_required_samples: int = 50) -> bool:
         """
         Evaluate the equilibration of a timeseries data
 
@@ -293,7 +293,7 @@ class EquilibrationSystem:
             True if the system is equilibrated, False otherwise.
         """
 
-        max_idx, max_inefficiency, min_ess = self._get_equilibration_attributes(data)
+        max_idx, max_inefficiency, min_ess = self._get_equilibration_attributes(data, property_name)
         logger.info(f"Minimum ESS: {min_ess}; Maximum Index: {max_idx}; Maximum Statistical Inefficiency: {max_inefficiency}")
 
         if min_ess < n_required_samples:
@@ -309,8 +309,8 @@ class EquilibrationSystem:
     def to_stored_equilibration_data(self):
         df = pd.read_csv(self.statistics_file, names=self.csv_columns)
         equilibration_attrs = [
-            self._get_equilibration_attributes(df['Potential Energy (kJ/mole)'].values),
-            self._get_equilibration_attributes(df['Density (g/mL)'].values)
+            self._get_equilibration_attributes(df['Potential Energy (kJ/mole)'].values, "potential_energy"),
+            self._get_equilibration_attributes(df['Density (g/mL)'].values, "density")
         ]
         statistical_inefficiency = max([attr[1] for attr in equilibration_attrs])
 
