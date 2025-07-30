@@ -1,3 +1,9 @@
+"""
+This script sets up the equilibration of amine properties by creating boxes
+from a dataset of physical properties. It checks for existing boxes in the
+storage and only creates boxes for properties that are not already present.
+"""
+
 import pathlib
 
 import click
