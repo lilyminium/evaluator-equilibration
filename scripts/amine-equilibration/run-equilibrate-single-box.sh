@@ -2,7 +2,7 @@
 #SBATCH -J equilibrate
 #SBATCH --array=151-151
 #SBATCH -p free-gpu
-#SBATCH -t 05:00:00
+#SBATCH -t 20:00:00
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=1
 #SBATCH --account dmobley_lab_gpu

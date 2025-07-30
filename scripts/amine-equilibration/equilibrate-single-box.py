@@ -1,5 +1,6 @@
 """
-This script 
+This script equilibrates a single box at a time.
+Equilibration is determined using the potential energy and density of the simulation.
 """
 
 import logging
@@ -62,7 +63,7 @@ class EquilibrationSystem:
         self.statistics_file = self.working_directory / "openmm_statistics.csv"
         self.tmp_statistics_file = self.working_directory / "tmp_openmm_statistics.csv"
         self.checkpoint_file = self.working_directory / "checkpoint.xml"
-        self.equilibrated_file = self.working_directory / "equilibrated_box.pdb"
+        self.equilibrated_file = self.working_directory / "output" / "output.pdb"
         self.output_file = self.working_directory / "stored_equilibration_data.json"
 
         self._load_current_state()
@@ -225,6 +226,7 @@ class EquilibrationSystem:
             logger.warning(f"Equilibration did not converge after {self.max_iterations} iterations.")
 
         existing_equilibration_files = sorted(self.working_directory.glob("equilibrated_box*.pdb"))
+        self.equilibrated_file.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy(existing_equilibration_files[-1], self.equilibrated_file)
 
         obj = self.to_stored_equilibration_data()
@@ -341,7 +343,7 @@ class EquilibrationSystem:
             property_phase=self.box.phase,
             source_calculation_id="eveq",
             force_field_id=self.get_force_field_id(),
-            coordinate_file_name=str(self.equilibrated_file.resolve()),
+            coordinate_file_name="output.pdb",
             statistical_inefficiency=statistical_inefficiency,
             number_of_molecules=self.interchange.topology.n_molecules,
             max_number_of_molecules=self.box.n_molecules,
