@@ -409,10 +409,10 @@ def main(
     boxes = sorted(box_directory.glob("u*.json"))
     box_file = boxes[index]
 
-    print(f"Working with box: {box_file.name}")
+    logger.info(f"Working with box: {box_file.name}")
 
     box = PropertyBox.from_json(box_file)
-    print(box)
+    logger.info(box)
 
     system = EquilibrationSystem(
         box=box,
