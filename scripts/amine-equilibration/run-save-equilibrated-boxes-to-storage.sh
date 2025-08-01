@@ -8,7 +8,7 @@
 #SBATCH --export ALL
 #SBATCH --mem=16gb
 #SBATCH --constraint=fastscratch
-#SBATCH --output slurm-%x.%A-%a.out
+#SBATCH --output slurm-%x.%A.out
 
 . ~/.bashrc
 

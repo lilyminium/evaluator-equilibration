@@ -12,7 +12,7 @@ from openff.evaluator.utils.serialization import TypedBaseModel
     "--input-path",
     "-i",
     "input_path",
-    type=click.Path(exists=True, dir_okay=False, readable=True),
+    type=click.Path(exists=True, dir_okay=True, readable=True),
     default="working_directory/equilibration/",
     help="Path to the input directory containing equilibration data files.",
 )
